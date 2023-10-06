@@ -1,14 +1,16 @@
 
-require('dotenv').config();
-const cookieParser = require('cookie-parser');
+import dotenv from 'dotenv'
+dotenv.config();
+ import cookieParser from 'cookie-parser';
+ 
+import express from 'express'
+import userRoutes from './routes/user.routes.js'
 
-const express=require('express')
-const userRoutes=require('./routes/user.routes')
 const app=express();
-const cors=require('cors')
-const errorMiddleware=require('./middlewares/error.middleware')
- const connectToDB=require("../server/config/dbConnection");
-const morgan = require('morgan');
+import cors from 'cors'
+import  errorMiddleware from   './middlewares/error.middleware.js'
+import  connectToDB from "../server/config/dbConnection.js"
+import morgan  from 'morgan'
 app.use(express.json())
 
 app.use(cors({
@@ -37,4 +39,4 @@ app.all('*',(req,res)=>{
 
 app.use(errorMiddleware);
 
- module.exports=app;
+ export default app;

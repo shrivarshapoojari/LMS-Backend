@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
-const User = require("../models/user.model");
-const { default: AppError } = require("../utils/appError");
+import User from "../models/user.model.js";
+import AppError from "../utils/appError.js";
 
 const cookieOptions = {
   secure: true,
@@ -8,7 +7,7 @@ const cookieOptions = {
   httpOnly: true,
 };
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
   const { fullname, email, password } = req.body;
 
   console.log(req.body);
@@ -47,7 +46,7 @@ const register = async (req, res) => {
   });
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (email || !password) {
@@ -69,7 +68,7 @@ const login = async (req, res) => {
   });
 };
 
-const logout = (req, res) => {
+export const logout = (req, res) => {
   res.cookie("token", null, {
     secure: true,
     maxAge: 0,
@@ -81,19 +80,11 @@ const logout = (req, res) => {
   });
 };
 
-const getProfile = async (req, res) => {
+export const getProfile = async (req, res) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({
-    success:true,
-    message:'User Details',
-    user
-  })
-
-};
-
-module.exports = {
-  register,
-  login,
-  logout,
-  getProfile,
+    success: true,
+    message: "User Details",
+    user,
+  });
 };

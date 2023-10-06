@@ -13,4 +13,4 @@ const isLoggedIn=(req,res,next)=>{
     next();
 
 }
-module.exports = isLoggedIn
+export default isLoggedIn
