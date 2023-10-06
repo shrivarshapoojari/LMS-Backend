@@ -1,11 +1,16 @@
 import User from "../models/user.model.js";
 import AppError from "../utils/appError.js";
-
+import cloudinary from "cloudinary"
 const cookieOptions = {
   secure: true,
   maxAge: 7 * 24 * 60 * 60 * 1000, // save cookie for 7 days
   httpOnly: true,
 };
+
+
+
+
+
 
 export const register = async (req, res) => {
   const { fullname, email, password } = req.body;
@@ -34,6 +39,39 @@ export const register = async (req, res) => {
   if (!user) {
     return next(new AppError("Registeration Failed ", 400));
   }
+   // Upload Image  
+   if(req.file)
+   {
+     try{
+           const result = await cloudinary.v2.uploader.upload(req.file.path ,{
+            folder:'lms',
+            width:250,
+            height:250,
+            gravity:'faces',
+            crop:'fill'
+           })
+
+           if(result)
+           {
+               user.avatar.public_id=result.public_id;
+               user.avatar.secure_url=result.secure_url;
+               // after uploading remove file from local server
+
+               
+               fs.rm(`uploads/${req.file.filename}`)
+
+           }
+
+     }
+
+    
+     catch(e){
+           return next(new AppError(e.message,500))
+     }
+
+   }
+
+
 
   await user.save();
 
@@ -45,6 +83,17 @@ export const register = async (req, res) => {
     message: "User Created SuccessFully ",
   });
 };
+
+
+
+
+
+
+
+
+
+
+
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
