@@ -1,8 +1,15 @@
-const isLoggedIn=(req,res,next)=>{
+import jwt from 'jsonwebtoken'
+
+import AppError from "../utils/appError.js";
+
+const isLoggedIn= async (req,res,next)=>{
+
     const {token}=req.cookies;
+    console.log(req.cookies)
+    
     if(!token)
     {
-   return next(new AppError('Unauthorised',401))
+   return next(new AppError('Unauthorised,Plz Login',401))
     } 
     const tokenDetails=jwt.verify(token,process.env.JWT_SECRET)
     if(!tokenDetails)
@@ -13,4 +20,5 @@ const isLoggedIn=(req,res,next)=>{
     next();
 
 }
+
 export default isLoggedIn

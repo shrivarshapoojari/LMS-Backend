@@ -16,6 +16,7 @@ const upload = multer({
 
     if (
       ext !== ".jpg" &&
+      ext !== ".JPG" &&
       ext !== ".jpeg" &&
       ext !== ".webp" &&
       ext !== ".png" &&

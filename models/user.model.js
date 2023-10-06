@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
-const { Schema, model } = mongoose;
+import { Schema, model } from 'mongoose';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const userSchema = new Schema({
+import crypto from 'crypto'
+const userSchema = new Schema(
+{
   fullname: {
     type: String,
     required: ["true", "Name is Required"],
@@ -47,9 +48,13 @@ const userSchema = new Schema({
 
   forgotPasswordToken: String,
   forgotPasswordExpiry: Date,
-});
+},
+{
+   timestamps:true
+}
+);
 
-userSchema.pre("save", async () => {
+userSchema.pre("save", async function (next)  {
   if (!this.isModified("password")) {
     return next();
   }
@@ -73,6 +78,18 @@ userSchema.methods = {
       }
     );
   },
+  generateResetToken: async function(){
+
+const resetToken= crypto.randomBytes(20).toString('hex');
+
+this.forgotPasswordToken=crypto
+                .createHash('sha256')
+                .update(resetToken)
+                .digest('hex')
+this.forgotPasswordExpiry=Date.now() + 15*60*1000 // 15 minit from now
+return resetToken;
+  }
+  
 };
 
 const User = model("User", userSchema);
