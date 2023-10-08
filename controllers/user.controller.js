@@ -5,7 +5,7 @@ import fs from 'fs/promises'
 import crypto from "crypto"
 import sendEmail from "../utils/sendEmail.js";
 const cookieOptions = {
-  secure: true,
+  
   maxAge: 7 * 24 * 60 * 60 * 1000, // save cookie for 7 days
   httpOnly: true,
 };
@@ -81,7 +81,7 @@ export const register = async (req,res,next) => {
 
   // Generate JWT TOKEN
   const token = await user.generateJWTToken();
-  
+  console.log(token)
 res.cookie('token', token, cookieOptions);
 user.password = undefined;
   res.status(200).json({
@@ -125,6 +125,7 @@ export const login = async (req, res,next) => {
     user,
     token
   });
+   
 };
 
 
@@ -245,6 +246,7 @@ export const changePassword = async (req,res,next)=>{
 
 const {oldPassword,newPassword}=req.body;
 const {id}=req.user;
+console.log(id)
 if(!oldPassword || !newPassword)
 {
   return next(new AppError("Both old and new password required", 400));
@@ -272,4 +274,63 @@ res.status(200).json({
   success:true,
   message:"Password Changed Successfully"
 })
+}
+
+
+export const updateProfile=async (req,res)=>{
+
+const {fullname}=req.body;
+const id=req.user;
+
+const user= await User.findById(id);
+if(!user)
+{
+  return next(new AppError(" User Not found", 400));
+  
+
+}
+if(fullname)
+{
+  user.fullname=fullname;
+  
+}
+if(req.file)
+{
+  await cloudinary.v2.uploader.destroy(user.avatar.public_id) // delete previous file
+
+
+  try{
+    const result = await cloudinary.v2.uploader.upload(req.file.path ,{
+     folder:'lms',
+     width:250,
+     height:250,
+     gravity:'faces',
+     crop:'fill'
+    })
+
+    if(result)
+    {
+        user.avatar.public_id=result.public_id;
+        user.avatar.secure_url=result.secure_url;
+        // after uploading remove file from local server
+
+        
+        fs.rm(`uploads/${req.file.filename}`)
+
+
+    }
+
+}
+
+
+catch(e){
+    return next(new AppError(e.message,500))
+}
+
+await user.save();
+res.status(200).json({
+  success:true,
+  message:"Update successs"
+})
+}
 }
