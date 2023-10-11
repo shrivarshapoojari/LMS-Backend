@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-
+import {isLoggedIn,authorizedRoles} from "../middlewares/auth.middleware.js";
 import {
   getAllCourses,
   createCourse,
@@ -8,15 +8,16 @@ import {
   updateCourse,
   deleteCourse,
 } from "../controllers/course.controller.js";
-import isLoggedIn from "../middlewares/auth.middleware.js";
+
 import upload from "../middlewares/multer.middleware.js";
+ 
 
 router.get("/", getAllCourses);
 
-router.post("/", upload.single("thumbnail"), createCourse);
+router.post("/",isLoggedIn,authorizedRoles('ADMIN') , upload.single("thumbnail"), createCourse);
 
 router.get("/:id", isLoggedIn, getLecturesById);
-router.put("/:id", updateCourse);
-router.delete("/:id", deleteCourse);
+router.put("/:id", isLoggedIn, authorizedRoles('ADMIN') ,updateCourse);
+router.delete("/:id", isLoggedIn, authorizedRoles('ADMIN') ,deleteCourse);
 
 export default router;

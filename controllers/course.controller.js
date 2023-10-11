@@ -2,6 +2,7 @@ import AppError from "../utils/appError.js";
 import Course from "../models/course.model.js";
 import fs from "fs/promises";
 import cloudinary from "cloudinary";
+
 import upload from "../middlewares/multer.middleware.js";
 export const getAllCourses = async (req, res, next) => {
   try {
@@ -105,8 +106,32 @@ export const updateCourse = async (req, res, next) => {
     return next(new AppError(e.message, 500));
   }
 };
+
+
+
+
+
 export const deleteCourse = async (req, res, next) => {
   try {
+       const {id}=req.params;
+    const course= await Course.findById(id);
+     
+    if(!course)
+    {
+        return next(new AppError("No course Found", 404));
+    }
+    else{
+        await  Course.findByIdAndDelete(id);
+       res.status(200).json({
+        success:true,
+        message:"Deleted The Course"
+       })
+
+    }
+
+       
+
+
   } catch (e) {
     return next(new AppError(e.message, 500));
   }

@@ -11,7 +11,7 @@ import {
   changePassword,
   updateProfile,
 } from "../controllers/user.controller.js";
-import isLoggedIn from "../middlewares/auth.middleware.js";
+import {isLoggedIn} from "../middlewares/auth.middleware.js";
 
 router.post("/register", upload.single("avatar"), register);
 

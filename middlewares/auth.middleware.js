@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 import AppError from "../utils/appError.js";
 
-const isLoggedIn= async (req,res,next)=>{
+export const isLoggedIn= async (req,res,next)=>{
 
     const {token}=req.cookies;
      console.log(token)
@@ -20,5 +20,12 @@ const isLoggedIn= async (req,res,next)=>{
     next();
 
 }
+  export const authorizedRoles=(...roles)=>(req,res,next)=>{
+   const currentRole=req.user.role;
+   if(!roles.includes(currentRole))
+   {
+    return next(new AppError("You Dont have access",403))
+   }
 
-export default isLoggedIn
+    next();
+  }
