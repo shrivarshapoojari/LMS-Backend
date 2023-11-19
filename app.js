@@ -5,7 +5,9 @@ dotenv.config();
  
 import express from 'express'
 import userRoutes from './routes/user.routes.js'
+import miscRoutes from './routes/misc.routes.js'
 import courseRoutes from './routes/course.routes.js';
+import paymentRoutes from './routes/payment.routes.js'
 const app=express();
 import cors from 'cors'
 import  errorMiddleware from   './middlewares/error.middleware.js'
@@ -28,8 +30,9 @@ app.use('/ping',(req,res)=>{
 
 
 app.use('/api/user',userRoutes);
+app.use('/api/misc',miscRoutes);
 app.use('/api/courses',courseRoutes)
-
+app.use('/api/v1/payments',paymentRoutes)
 
 // if any route not found
 

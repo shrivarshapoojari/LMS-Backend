@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -22,6 +22,7 @@
     "mongoose": "^7.5.4",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.5"
+    "nodemailer": "^6.9.5",
+    "razorpay": "^2.9.2"
   }
 }
