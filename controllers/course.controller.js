@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import cloudinary from "cloudinary";
 
 import upload from "../middlewares/multer.middleware.js";
+
 export const getAllCourses = async (req, res, next) => {
   try {
     const courses = await Course.find({}).select("-lectures");

@@ -277,60 +277,57 @@ res.status(200).json({
 }
 
 
-export const updateProfile=async (req,res)=>{
+export const updateProfile = async (req, res, next) => {
+  // Destructuring the necessary data from the req object
+  const { fullname } = req.body;
+  const { userId } = req.params;
 
-const {fullname}=req.body;
-const id=req.user;
+  const user = await User.findById(userId);
 
-const user= await User.findById(id);
-if(!user)
-{
-  return next(new AppError(" User Not found", 400));
-  
+  if (!user) {
+    return next(new AppError('Invalid user id or user does not exist'));
+  }
 
-}
-if(fullname)
-{
-  user.fullname=fullname;
-  
-}
-if(req.file)
-{
-  await cloudinary.v2.uploader.destroy(user.avatar.public_id) // delete previous file
+  if (fullname) {
+    user.fullname = fullname;
+  }
 
+  // Run only if user sends a file
+  if (req.file) {
+    // Deletes the old image uploaded by the user
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
 
-  try{
-    const result = await cloudinary.v2.uploader.upload(req.file.path ,{
-     folder:'lms',
-     width:250,
-     height:250,
-     gravity:'faces',
-     crop:'fill'
-    })
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: 'lms', // Save files in a folder named lms
+        width: 250,
+        height: 250,
+        gravity: 'faces', // This option tells cloudinary to center the image around detected faces (if any) after cropping or resizing the original image
+        crop: 'fill',
+      });
 
-    if(result)
-    {
-        user.avatar.public_id=result.public_id;
-        user.avatar.secure_url=result.secure_url;
-        // after uploading remove file from local server
+      // If success
+      if (result) {
+        // Set the public_id and secure_url in DB
+        user.avatar.public_id = result.public_id;
+        user.avatar.secure_url = result.secure_url;
 
-        
-        fs.rm(`uploads/${req.file.filename}`)
-
-
+        // After successful upload remove the file from local storage
+        fs.rm(`uploads/${req.file.filename}`);
+      }
+    } catch (error) {
+      return next(
+        new AppError(error || 'File not uploaded, please try again', 400)
+      );
     }
+  }
 
-}
+  // Save the user object
+  await user.save();
 
-
-catch(e){
-    return next(new AppError(e.message,500))
-}
-
-await user.save();
-res.status(200).json({
-  success:true,
-  message:"Update successs"
-})
-}
-}
+  res.status(200).json({
+    user,
+    success: true,
+    message: 'User details updated successfully',
+  });
+};
