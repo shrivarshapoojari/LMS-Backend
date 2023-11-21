@@ -156,6 +156,8 @@ export const getProfile = async (req, res) => {
 export const forgotPassword=async(req,res,next)=>{
 
   const {email}=req.body;
+  
+  console.log(email);
   if(!email)
   {
     return next(new AppError("Email is required", 400));
