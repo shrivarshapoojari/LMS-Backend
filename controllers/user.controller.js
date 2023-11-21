@@ -245,7 +245,8 @@ res.status(200).json({
 export const changePassword = async (req,res,next)=>{
 
 const {oldPassword,newPassword}=req.body;
-const {id}=req.user;
+ 
+const {id}=req.params;
 console.log(id)
 if(!oldPassword || !newPassword)
 {
@@ -253,16 +254,19 @@ if(!oldPassword || !newPassword)
   
 }
   const user = await User.findById(id).select('+password');
-
+ 
   if(!user)
   {
     return next(new AppError("User not found try again", 400));
   
   }
+  
   const isPasswordValid=await user.comparePassword(oldPassword)
+   
+
   if(!isPasswordValid)
   {
-    return next(new AppError("Invalid Password", 400));
+    return next(new AppError('Invalid Password ', 400));
   
   }
 
