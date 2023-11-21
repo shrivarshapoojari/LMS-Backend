@@ -189,8 +189,10 @@ try{
 
   await sendEmail(email,subject,message);
   res.status(200).json({
+    user,
     success:true,
-    message:'Reset Password email sent successfully'
+    message:'Reset Password email sent successfully',
+   
   })
 }
 catch(e)
