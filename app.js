@@ -32,7 +32,7 @@ app.use('/ping',(req,res)=>{
 app.use('/api/user',userRoutes);
 app.use('/api/misc',miscRoutes);
 app.use('/api/courses',courseRoutes)
-app.use('/api/v1/payments',paymentRoutes)
+app.use('/api/payments',paymentRoutes)
 
 // if any route not found
 

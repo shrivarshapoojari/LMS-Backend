@@ -5,7 +5,7 @@ import AppError from "../utils/appError.js";
 export const isLoggedIn= async (req,res,next)=>{
 
     const {token}=req.cookies;
-     console.log(token)
+   
     
     if(!token)
     {

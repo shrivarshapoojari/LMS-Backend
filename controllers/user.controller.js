@@ -172,8 +172,7 @@ export const forgotPassword=async(req,res,next)=>{
   }
 
 const resetToken = await user.generateResetToken();
-
-
+ 
  await user.save();
 
  const resetPasswordUrl=`${process.env.FRONTEND_URL}/api/user/reset/${resetToken}`
@@ -213,11 +212,13 @@ export const resetPassword= async(req,res,next)=>{
   const {resetToken}=req.params;
   const {password}=req.body;
 
+   
   const forgotPasswordToken=crypto
                             .createHash('sha256')
                             .update(resetToken)
                             .digest('hex');
-            
+
+          
 const user =await User.findOne({
   forgotPasswordToken,
   forgotPasswordExpiry:{$gt:Date.now()} // checks the token expiry time is greater than current time
