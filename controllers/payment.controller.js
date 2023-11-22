@@ -49,7 +49,7 @@ export const buySubscription = async (req, res, next) => {
             customer_notify:1 ,//sends mail to customer
             total_count:12 // charge for every 1 year
         })
-        console.log(subscription)
+        // console.log(subscription)
         // update userr with subscription
        
        
@@ -97,14 +97,16 @@ export const verifySubscription = async (req, res, next) => {
            {
                return next(new AppError("User Not found",404))
            }
+           const subscriptionId = user.subscription.id;
 
            const {razorpay_payment_id,razorpay_signature,razorpay_subscription_id}=req.body;
-           console.log("Body")
-           console.log(req.body)
-           const generatedSignature =crypto
-                                        .createHmac('sha256',process.env.RAZORPAY_SECRET)
-                                        .update(`${razorpay_payment_id} | ${razorpay_subscription_id}`)
-
+            
+           const generatedSignature = crypto
+           .createHmac('sha256', process.env.RAZORPAY_SECRET)
+           .update(`${razorpay_payment_id}|${subscriptionId}`)
+           .digest('hex');
+             console.log(generatedSignature)
+             console.log(razorpay_signature)
 
                                         if(generatedSignature!==razorpay_signature)
                                         {
@@ -134,7 +136,9 @@ export const verifySubscription = async (req, res, next) => {
     } 
     catch(e)
     {
-        return next(new AppError(e.message,500))
+        console.log(e)
+        return next(new AppError(e.message,400))
+        
     }
     
 };
