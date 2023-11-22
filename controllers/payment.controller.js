@@ -110,7 +110,7 @@ export const verifySubscription = async (req, res, next) => {
 
                                         if(generatedSignature!==razorpay_signature)
                                         {
-                                            return next(new AppError("Payment Unsuccessfull",500))
+                                            return next(new AppError("Error in verifying payment, plz contact support team wit payment details",500))
                                         }
   // Record Payment Details in Database
     await Payment.create({
@@ -144,35 +144,62 @@ export const verifySubscription = async (req, res, next) => {
 };
 
 export const cancelSubscription = async (req, res, next) => {
-    try{
-        const {id}=req.user;
-        const user = await User.findById(id);
-        if(!user)
-        {
-            return next(new AppError("User Not found",404))
-        }
+    const { id } = req.user;
 
-        if(user.role==='ADMIN')
-    {
-        return next(new AppError("Admin cant cancel subscription",500))
-    }
+  // Finding the user
+  const user = await User.findById(id);
 
-    const subscriptionId=user.subscription.id;
-      const subscription= await razorpay.subscriptions.cancel({
-        subscriptionId
-      });
-      user.subscription.status=subscription.status;
-      await user.save();
-      res.status(200).json({
-        success:true,
-        message:"Subscription cancelled"
-      })
-    }
-    catch(e)
-    {
-        return next(new AppError(e.message,500))
-    }
-    
+  // Checking the user role
+  if (user.role === 'ADMIN') {
+    return next(
+      new AppError('Admin does not need to cannot cancel subscription', 400)
+    );
+  }
+
+  // Finding subscription ID from subscription
+  const subscriptionId = user.subscription.id;
+
+  // Creating a subscription using razorpay that we imported from the server
+  try {
+    const subscription = await razorpay.subscriptions.cancel(
+      subscriptionId // subscription id
+    );
+
+    // Adding the subscription status to the user account
+    user.subscription.status = subscription.status;
+
+    // Saving the user object
+    await user.save();
+  } catch (error) {
+    // Returning error if any, and this error is from razorpay so we have statusCode and message built in
+    return next(new AppError(error.error.description, error.statusCode));
+  }
+
+  // Finding the payment using the subscription ID
+  const payment = await Payment.findOne({
+    razorpay_subscription_id: subscriptionId,
+  });
+
+  // Getting the time from the date of successful payment (in milliseconds)
+  
+
+  // refund period which in our case is 14 days
+   
+
+  // If refund period is valid then refund the full amount that the user has paid
+  
+
+  user.subscription.id = undefined; // Remove the subscription ID from user DB
+  user.subscription.status = undefined; // Change the subscription Status in user DB
+
+  await user.save();
+  
+
+  // Send the response
+  res.status(200).json({
+    success: true,
+    message: 'Subscription canceled successfully',
+  });
     
 };
 
