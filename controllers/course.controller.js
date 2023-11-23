@@ -22,7 +22,7 @@ export const getAllCourses = async (req, res, next) => {
 
 export const getLecturesById = async (req, res, next) => {
   try {
-    const id = req.params;
+    const {id} = req.params;
     const course = await Course.findById(id);
     if (!course) {
       return next(new AppError("No course found", 400));
@@ -177,27 +177,39 @@ export const addLectureToCourseById = async (req, res, next) => {
 };
 
 export const deleteLectureById = async (req, res, next) => {
-  const {courseId,lectureId} = req.params;
-   
-  if (!courseId) {
+ 
+ 
+ 
+ try
+ {
+
+ 
+  const {courseId} = req.params.courseId;
+  const {lectureId} = req.params.lectureId;
+  
+
+
+   console.log( 'course id' ,req.params.courseId)
+  if (!req.params.courseId) {
     return next (new AppError(
       "Course Id  required to remove a lecture",
       400
     ));
   }
-  if (!lectureId) {
+  if (!req.params.lectureId) {
     return next (new AppError(
       "Lecture Id  required to remove a lecture",
       400
     ));
   }
-  console.log(lectureId)
-  const course = await Course.findById(courseId);
+  
+  const course = await Course.findById(req.params.courseId);
   if (!course) {
+    console.log(req.params.courseId)
     return next(new AppError("Course Doesnt exist", 404));
   }
   const lectureIndex = course.lectures.findIndex(
-    (lecture) => lecture._id.toString() === lectureId.toString()
+    (lecture) => lecture._id.toString() === req.params.lectureId.toString()
   );
   if (lectureIndex === -1) {
     return next(new AppError("Lecture does not exist.", 404));
@@ -223,4 +235,10 @@ export const deleteLectureById = async (req, res, next) => {
     success: true,
     message: "Course lecture removed successfully",
   });
+} catch(e)
+{
+  console.log(e)
+  return next(new AppError(e.message, 500));
+}
+
 };
